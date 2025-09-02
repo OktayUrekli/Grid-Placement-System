@@ -17,7 +17,7 @@ public class PlacementState : IBuildingState
                           GridData floorData,
                           GridData furnitureData,
                           Grid grid,
-                          int ýD,
+                          int id,
                           ObjectPlacer objectPlacer,
                           PreviewSystem previewSystem)
     {
@@ -25,14 +25,14 @@ public class PlacementState : IBuildingState
         this.floorData = floorData;
         this.furnitureData = furnitureData;
         this.grid = grid;
-        ID = ýD;
+        ID = id;
         this.objectPlacer = objectPlacer;
         this.previewSystem = previewSystem;
 
 
         selectedObjectIndex = database.objectData.FindIndex(data => data.ID == ID); // basýlan butondan gelen index database de hangi objeyi iþaret ediyor o tespit ediliyor
 
-        if (selectedObjectIndex > -1)
+        if (selectedObjectIndex > -1) // yerleþtirmeye uygun bir obje varsa
         {
             previewSystem.StartShowingPlacementPreview(
                 database.objectData[selectedObjectIndex].Prefab,
@@ -58,15 +58,15 @@ public class PlacementState : IBuildingState
 
         // uygunsa aþaðýdaki kodlar çalýþýr
         int index = objectPlacer.PlaceObject(database.objectData[selectedObjectIndex].Prefab, grid.CellToWorld(gridPosition));
-
         GridData selectedData = database.objectData[selectedObjectIndex].ID == 0 ? floorData : furnitureData;
+
         // obje dataya kayýt ediliyor
         selectedData.AddObjectAt(gridPosition,
             database.objectData[selectedObjectIndex].Size,
             database.objectData[selectedObjectIndex].ID,
             index);
 
-        previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), false);
+        previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), false); // yerleþtirme sonrasýnda  ön gösterimi kýrmýzý yapýyor
     }
 
 
@@ -76,9 +76,11 @@ public class PlacementState : IBuildingState
         return selectedData.CanPlaceObjectAt(gridPosition, database.objectData[selectedObjectIndex].Size);
     }
 
+
+    // mouse her hareket ettiðinde çalýþan fonksiyon
     public void UpdateState(Vector3Int gridPosition)
     {
         bool placementValidity = CheckPlacementValidity(gridPosition, selectedObjectIndex); // bu konum obje yerleþtirmye uygun mu deðil mi bunun sorgusu yapýlýyor
-        previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), placementValidity);
+        previewSystem.UpdatePosition(grid.CellToWorld(gridPosition), placementValidity); 
     }
 }

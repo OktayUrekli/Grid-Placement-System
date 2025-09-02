@@ -54,6 +54,24 @@ public class GridData
         return true; // uygunsa true
     }
 
+    internal int GetRepresentationIndex(Vector3Int gridPosition)
+    {
+        if (placeObjects.ContainsKey(gridPosition)==false) // eðer bu pozisyonda silinebilecek obje yoksa -1 döner
+        {
+            Debug.Log(gridPosition.ToString());
+            return -1;
+        }
+        return placeObjects[gridPosition].PlacedObjectIndex; // varsa o objenin kayýttaki indexini döner
+
+    }
+
+    internal void RemoveObjectAt(Vector3Int gridPosition)
+    {
+        foreach (var obj in placeObjects[gridPosition].occupiedPositions)  // kaplanýlan grid konumlarý list olarak obj ye atanýyor. 
+        {
+            placeObjects.Remove(obj); // eðer kayýtlý konumlar arasýnda obj listesi varsa bu konumlarý ve bu konumlara kayýtlý yerleþtirme bilgisini siliyor.
+         }
+    }
 }
 
 public class PlacementData

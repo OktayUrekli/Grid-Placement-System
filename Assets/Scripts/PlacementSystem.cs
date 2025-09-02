@@ -14,7 +14,7 @@ public class PlacementSystem : MonoBehaviour
 
     GridData floorData,furnitureData; 
 
-    [SerializeField] PreviewSystem preview;
+    [SerializeField] PreviewSystem previewSystem;
 
     Vector3Int lastDetectedPosition=Vector3Int.zero;
 
@@ -25,13 +25,14 @@ public class PlacementSystem : MonoBehaviour
     private void Start()
     {
         StopPlacement();
+        gridVisualization.SetActive(false);
         floorData = new GridData();
         furnitureData = new GridData();
     }
 
     private void Update()
     {
-        if (buildingState==null) // uygun bir obje seçilmediyse
+        if (buildingState==null) // seçme yada silme iþlemi seçilmediyse
             return;
 
         Vector3 mousePosition = inputManager.GetSelectedMapPos(); // gridin grid üzerindeki pozisyonu alýnýr
@@ -48,16 +49,26 @@ public class PlacementSystem : MonoBehaviour
     public void StartPlacement(int ID)  // butonlara atanan fonksiyon
     {
         StopPlacement(); // herhangi bir butona týklanýldýðýnda atamalar resetleniyor
-        gridVisualization.gameObject.SetActive(true);
+        gridVisualization.SetActive(true); // grid görünümü aktif hale getiriliyor
         buildingState=new PlacementState(database,
                                          floorData,
                                          furnitureData,
                                          grid,
                                          ID,
                                          objectPlacer,
-                                         preview);
+                                         previewSystem);
         inputManager.OnClicked += PlaceStructure;
         inputManager.OnExit += StopPlacement;
+    }
+
+    public void StartRemoving()
+    {
+        StopPlacement();
+        gridVisualization.SetActive(true);
+        buildingState = new RemovingState(floorData, furnitureData, grid, objectPlacer, previewSystem);
+        inputManager.OnClicked += PlaceStructure;
+        inputManager.OnExit += StopPlacement;
+
     }
 
     private void PlaceStructure() // obje yerleþtirme gerçekleþtiren fonksiyon
@@ -69,7 +80,7 @@ public class PlacementSystem : MonoBehaviour
         Vector3 mousePosition = inputManager.GetSelectedMapPos();
         Vector3Int gridPosition = grid.WorldToCell(mousePosition);
 
-        buildingState.OnAction(gridPosition);
+        buildingState.OnAction(gridPosition);  // obje yerleþtirilecek ve ya silinecek konum bilgisi gönderiliyor
     }
 
     //bool CheckPlacementValidity(Vector3Int gridPosition, int selectedObjectIndex)

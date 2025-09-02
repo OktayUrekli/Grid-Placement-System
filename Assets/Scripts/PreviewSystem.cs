@@ -35,8 +35,7 @@ public class PreviewSystem : MonoBehaviour
         if (size.x>0  && size.y>0)
         {
             cellIndicator.transform.localScale = new Vector3(size.x, 1, size.y); // gösterge boyutunu obje boyutuna getiriyor
-            cellIndicatorRenderer.material.mainTextureScale = size; // gösterge objenin kapladýðý her gridi göstermesi için 
-            
+            cellIndicatorRenderer.material.mainTextureScale = size; // gösterge objenin kapladýðý her gridi göstermesi için            
         }
     }
 
@@ -55,34 +54,58 @@ public class PreviewSystem : MonoBehaviour
         }
     }
 
+
+    // yerleþtirme gerçekleþtikten sonra öngösterimi kapatan fonksiyon
     public void StopShowingPreview()
     {
         cellIndicator.SetActive(false);
-        Destroy(previewObject);
+        if (previewObject != null)
+            Destroy(previewObject);
     }
 
+
+    // ön gösterimin(preview objesi) konumunu güncelleyen fonksiyon
+    // eðer uygunsa beyaz renkte deðilse kýrmýzý renkte gösterim yapýlacak
     public void UpdatePosition(Vector3 position,bool validity)
     {
-        MovePreview(position);
+        if (previewObject!=null)
+        {
+            MovePreview(position);
+            ApplyFeedbackToPreview(validity);
+        }
+
         MoveCursor(position);
-        ApplyFeedback(validity);
+        ApplyFeedbackToCursor(validity);
     }
 
-    private void ApplyFeedback(bool validity)
+    private void ApplyFeedbackToPreview(bool validity) // preview rengi belirleniyor
     {
         Color c =validity? Color.white : Color.red;
         c.a = 0.5f;
-        cellIndicatorRenderer.material.color = c;
         previewMaterialInstance.color = c;
     }
 
-    private void MoveCursor(Vector3 position)
+    private void ApplyFeedbackToCursor(bool validity)// hücre/grid rengi belirleniyor
+    {
+        Color c = validity ? Color.white : Color.red;
+        c.a = 0.5f;
+        cellIndicatorRenderer.material.color = c;
+    }
+
+    private void MoveCursor(Vector3 position)// grid konumu belirleniyor
     {
         cellIndicator.transform.position = position;    
     }
 
-    private void MovePreview(Vector3 position)
+    private void MovePreview(Vector3 position)// preview konumu belirleniyor
     {
         previewObject.transform.position = new Vector3(position.x,position.y+previewYOffset,position.z);
+    }
+
+    internal void StartShowingRemovePreview()
+    {
+        cellIndicator.SetActive(true);
+        PrepareCursor(Vector2Int.one);
+        ApplyFeedbackToCursor(false);
     }
 }
